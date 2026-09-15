@@ -28,5 +28,11 @@ logs/
 .vscode/
 .idea/
 
-# Node (not used for builds, but safe)
+# Tooling state
+.pi/
+*.tsbuildinfo
+
+# Node
 node_modules/
+frontend/node_modules/
+frontend/dist/

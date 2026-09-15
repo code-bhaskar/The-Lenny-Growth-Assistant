@@ -1,53 +1,35 @@
-# design.md
+# The Lenny Growth Assistant — Design Specification
 
-## UI / UX principles
-- **Trust first:** every answer should feel inspectable, not magical.
-- **Two-surface workflow:** chat for reasoning, artifact pane for output.
-- **Fast evaluator comprehension:** key controls are visible immediately—new chat, provider selector, health status, sessions, and artifact viewer.
-- **Graceful degradation:** if Ollama or Anthropic is unavailable, the app should explain the problem clearly.
+## Design goals
+- clear conversational UX
+- visible source grounding
+- visible provider state
+- first-class artifact surface
+- understandable loading/error states
+- responsive layout
 
 ## Information architecture
-### Left rail
-- Brand / product framing
-- New chat button
-- Provider selector
-- Health summary
-- Session list
+```text
+Application
+├── Session Sidebar
+├── Provider / Health Toolbar
+├── Conversation Surface
+└── Artifact Viewer
+```
 
-### Main chat column
-- Session title and metadata
-- Scrollable message timeline
-- Composer with grounded-use hints
-- Reindex action for the knowledge base
-
-### Right artifact column
-- Artifact viewer empty state
-- Markdown render surface
-- Sandboxed HTML iframe surface
-- Raw artifact disclosure area for debugging and reuse
-
-## Key interaction states
-- **Cold start:** no session selected, artifact viewer empty.
-- **Active chat:** messages load from persistence; latest artifact remains visible.
-- **Thinking:** send button changes to “Thinking…”.
-- **Grounded refusal:** assistant explains insufficient evidence instead of guessing.
-- **Artifact available:** artifact opens in the right pane and remains copyable.
-- **Provider degraded:** health pill reflects the issue before the user sends a message.
+## Key decisions
+- Artifacts render beside the conversation.
+- Source evidence is visible in message cards.
+- Model/provider state is visible at the top of the chat column.
+- HTML is rendered only inside a sandboxed iframe.
 
 ## Responsive behavior
-- Desktop: three-part layout becomes left rail + two-pane workspace.
-- Tablet/mobile: layout stacks vertically; artifact viewer remains accessible below chat.
-- Controls collapse naturally without requiring a separate mobile nav.
+- desktop: sidebar + chat + artifact viewer
+- mobile/tablet: stacked layout
 
 ## Accessibility considerations
-- Semantic buttons, forms, and headings
-- Adequate contrast for primary actions and health states
-- Keyboard-accessible session list and artifact disclosure
-- Plain-text message bodies preserve readability for screen readers
-- No motion-heavy transitions or hover-only interactions required for core use
-
-## Design decisions
-- **Static frontend over SPA framework:** faster to ship, simpler to hand off, and enough for the evaluator workflow.
-- **Visible health pill:** operational transparency matters in forward deployment.
-- **Artifact raw view:** helps auditors inspect generated HTML/Markdown quickly.
-- **Badge-based metadata:** route/provider/citation context remains readable without clutter.
+- semantic controls
+- visible labels
+- keyboard-accessible buttons
+- readable contrast
+- loading state via disabled controls and clear button text

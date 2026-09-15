@@ -1,99 +1,71 @@
-# PRD — The Lenny Growth Assistant
+# The Lenny Growth Assistant — Product Requirements Document
 
-## 1. Discovery brief
+## Product overview
+The Lenny Growth Assistant is a full-stack AI-powered conversational application that turns Lenny's Podcast transcripts into a grounded internal assistant for product and growth teams.
 
+## Discovery brief
 ### User and problem
-**Primary user:** an internal product, growth, or PMM teammate who wants quick, trustworthy synthesis from Lenny's Podcast without manually searching long transcripts.
+Primary user: a product, growth, or PMM teammate who needs fast, trustworthy synthesis from Lenny's transcripts without manually searching long documents or writing prompts.
 
-**Core job to be done:**
-- Ask nuanced product and growth questions
-- Get grounded answers with source traceability
-- Turn those answers into reusable content or artifacts
-- Keep work inside one workflow instead of bouncing across docs, prompt playgrounds, and HTML editors
-
-**Pain removed:** transcript search is slow, prompt quality is inconsistent, raw LLM outputs are hard to trust, and artifacts are often generated in formats that require extra tooling to inspect.
-
-### Success metric
-Primary product metric:
-- **Grounded answer success rate:** at least 80% of evaluator test prompts return a source-cited answer or an explicit grounded refusal.
-
-Operational metrics:
-- Median local response time under 20 seconds on Ollama for standard Q&A
-- 0 unsafe script execution events in the artifact viewer
-- 100% of chats persisted with session ID, timestamp, and user metadata
+### Success metrics
+- Grounded answer success rate for evaluation prompts
+- Reliable session persistence across follow-ups
+- Successful artifact generation/rendering
+- Local Ollama demo path works
+- Fresh evaluator can run the product from the docs
 
 ### Assumptions
-- The client values **reliability and evaluator clarity** over frontier-agent autonomy.
-- Transcript-level grounding is more important than perfect semantic recall.
-- A lightweight static frontend is acceptable if the chat and artifact UX feel polished.
-- PostgreSQL is mandatory for sessions/persistence; the knowledge index may be rebuilt from source files.
-- Ollama will be available locally for the recorded demo, but the app should degrade gracefully if it is not.
-- Cloud access may be unavailable during evaluation, so Anthropic is optional rather than required for the happy path.
+- Evaluator can run Docker and Ollama
+- PostgreSQL is the persistence layer
+- Full auth is out of scope for the MVP
+- Local Ollama quality is acceptable for the demo
 
-### Scope choices
-**Included**
+### Scope included
+- React + TypeScript frontend
 - FastAPI backend
-- PostgreSQL-backed chat sessions and messages
-- Ollama local inference
-- Anthropic cloud provider + optional Claude Agent SDK path
-- Transcript ingestion + chunking + TF-IDF retrieval
-- Source citations and weak-evidence refusal behavior
-- Ship 30 for 30 writing skill encoded as a distinct route
-- Markdown + HTML/CSS artifact generation with in-app viewer
-- Basic observability, health endpoints, tests, Docker Compose, and handoff docs
-
-**Intentionally excluded**
-- Multi-user auth and permissions
-- Streaming token-by-token responses
-- Background job queue for ingestion
-- Fine-grained role-based access control
-- Production-grade analytics dashboards
-- Full HTML sanitization policy language or custom CSS parser
+- Pi Coding Agent agent layer
+- PostgreSQL persistence
+- transcript ingestion and retrieval
+- Ship 30 skill
+- Markdown and HTML/CSS artifacts
+- artifact viewer with isolation/sanitization
+- structured logs, tests, docs, Docker Compose
 
 ### Risks and trade-offs
-- **Hallucination:** mitigated with retrieval-first prompts, source markers, and refusal on weak matches.
-- **Latency:** local Ollama can be slow; default model is a smaller Ollama model to improve demo ergonomics.
-- **Cost:** cloud inference is optional and explicit.
-- **Local model quality:** smaller local models may format artifacts less reliably; the app includes parser fallbacks.
-- **Data leakage:** no transcript content is sent to cloud models unless the Anthropic provider is explicitly selected.
-- **Unsafe rendering:** generated HTML is treated as untrusted and rendered only after sanitization inside a sandboxed iframe.
+- hallucination -> mitigate with retrieval grounding and refusal behavior
+- local model quality -> keep provider configurable
+- unsafe HTML -> sanitize and sandbox
+- latency -> bounded retrieval and simple architecture
 
-## 2. Product requirements
+## Goals
+1. Provide transcript-grounded answers.
+2. Preserve independent sessions.
+3. Generate reusable Ship 30-style content.
+4. Generate markdown and HTML artifacts.
+5. Render artifacts inside the product.
+6. Support Ollama and Anthropic through configuration.
 
-### Core flows
-1. User creates or opens a chat session.
-2. User asks a product/growth question.
-3. System retrieves transcript evidence.
-4. System routes request to Q&A, Ship 30 essay, or artifact mode.
-5. LLM produces a grounded response.
-6. App stores session, messages, citations, timestamps, provider, and optional artifact.
-7. If artifact exists, it renders beside the chat.
+## Core flows
+- new chat
+- follow-up question
+- unsupported question refusal
+- Ship 30 content generation
+- artifact generation and rendering
 
-### Functional requirements
-- Start new chat sessions with isolated context.
-- Persist session metadata and messages in PostgreSQL.
-- Support provider selection between Ollama and Anthropic.
-- Show provider status in UI.
-- Cite transcript sources in assistant responses.
-- Refuse confidently when retrieval quality is weak.
-- Generate markdown or HTML/CSS artifacts inside the app.
-- Support a dedicated Ship 30 writing skill.
+## Functional requirements
+- `POST /api/sessions/{session_id}/messages` persists conversation turns
+- `GET /api/sessions/{session_id}/messages` returns ordered history
+- `POST /api/ingestion` refreshes transcript data
+- `POST /api/artifacts` creates a grounded artifact
+- sources are visible in grounded responses
+- HTML artifacts are treated as untrusted
 
-## 3. Acceptance criteria
-- User can create multiple sessions and revisit them later.
-- `/health` reports database, knowledge base, and provider readiness.
-- Evaluator can switch providers from the UI without code changes.
-- Chat responses include citations whenever grounded evidence exists.
-- Weak retrieval returns a refusal instead of an invented answer.
-- Ship 30 route produces a long-form markdown artifact.
-- HTML artifacts render in a sandboxed iframe and strip scripts/event handlers.
-- `docker compose up --build` is documented as the main startup path.
-
-## 4. Implementation plan
-1. Create FastAPI service with health endpoints and static UI.
-2. Implement SQLAlchemy persistence for sessions, messages, and artifacts.
-3. Add transcript ingestion, chunking, and TF-IDF retrieval.
-4. Add provider abstraction for Ollama + Anthropic.
-5. Add routing layer for Q&A, Ship 30, and artifact generation.
-6. Build side-by-side artifact viewer with sanitization strategy.
-7. Add tests, docs, and operational handoff materials.
+## Acceptance criteria
+- FastAPI backend works
+- React + TypeScript frontend works
+- Pi Coding Agent is the primary agent layer
+- Ollama works as local provider
+- Anthropic works as cloud provider when configured
+- PostgreSQL stores sessions, messages, sources, transcript chunks, and artifacts
+- artifact viewer renders beside chat
+- tests cover critical API, retrieval, routing, persistence, and artifact safety behavior
