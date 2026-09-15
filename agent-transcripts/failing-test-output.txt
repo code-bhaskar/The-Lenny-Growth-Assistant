@@ -1,0 +1,15 @@
+FFFFFF                                                                   [100%]
+=================================== FAILURES ===================================
+_____________________________ test_health_endpoint _____________________________
+
+E       AssertionError: assert 'missing' == 'ready'
+
+----------------------------- Captured stdout call -----------------------------
+{"timestamp": "2026-09-15 10:05:23,442", "level": "WARNING", "logger": "app.services.knowledge", "message": "knowledge_base_unavailable", "error": "Object of type date is not JSON serializable"}
+
+____________________ test_create_session_and_grounded_chat _____________________
+E       TypeError: Object of type date is not JSON serializable
+
+Root cause observed during the run:
+- YAML frontmatter publish dates were loaded as Python `date` objects.
+- The manifest serialization path tried to dump them directly to JSON.

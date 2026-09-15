@@ -1,0 +1,2 @@
+# Optional integrations
+claude-agent-sdk>=0.2.140,<1.0.0
