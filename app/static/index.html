@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Lenny Growth Assistant</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">L</div>
+          <div>
+            <h1>The Lenny Growth Assistant</h1>
+            <p>Grounded product and growth research</p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <button id="new-chat-button" class="primary-button">+ New chat</button>
+          <div class="provider-row">
+            <label for="provider-select">Model provider</label>
+            <select id="provider-select"></select>
+          </div>
+          <div id="health-pill" class="health-pill">Checking system…</div>
+        </div>
+
+        <div class="panel panel-grow">
+          <div class="panel-header">
+            <h2>Sessions</h2>
+            <button id="refresh-sessions-button" class="ghost-button">Refresh</button>
+          </div>
+          <div id="session-list" class="session-list"></div>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <section class="chat-panel">
+          <div class="chat-header">
+            <div>
+              <h2 id="session-title">Select or create a chat</h2>
+              <p id="session-meta">Each session keeps its own context in PostgreSQL.</p>
+            </div>
+            <button id="reindex-button" class="ghost-button">Reindex transcripts</button>
+          </div>
+
+          <div id="messages" class="messages"></div>
+
+          <form id="composer" class="composer">
+            <textarea
+              id="message-input"
+              rows="4"
+              placeholder="Ask about growth loops, onboarding, PMF, or request a Ship 30 essay / artifact…"
+            ></textarea>
+            <div class="composer-actions">
+              <p class="hint">
+                Grounded answers cite transcript sources. Request “markdown artifact” or “HTML/CSS artifact” to render beside the chat.
+              </p>
+              <button type="submit" id="send-button" class="primary-button">Send</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="artifact-panel">
+          <div class="artifact-header">
+            <h2>Artifact Viewer</h2>
+            <p>Markdown renders inline. HTML is sandboxed and sanitized.</p>
+          </div>
+          <div id="artifact-empty" class="artifact-empty">
+            <h3>No artifact yet</h3>
+            <p>Ask for a memo, one-pager, Ship 30 essay, or HTML/CSS artifact.</p>
+          </div>
+          <div id="artifact-view" class="artifact-view hidden">
+            <div class="artifact-toolbar">
+              <div>
+                <strong id="artifact-title">Untitled artifact</strong>
+                <span id="artifact-type" class="artifact-badge"></span>
+              </div>
+              <button id="copy-artifact-button" class="ghost-button">Copy raw</button>
+            </div>
+            <div id="artifact-markdown" class="artifact-markdown"></div>
+            <iframe id="artifact-iframe" class="artifact-iframe hidden" sandbox=""></iframe>
+            <details class="artifact-raw">
+              <summary>Show raw artifact</summary>
+              <pre id="artifact-raw-content"></pre>
+            </details>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <template id="message-template">
+      <article class="message-card">
+        <div class="message-topline">
+          <span class="message-role"></span>
+          <span class="message-route"></span>
+          <span class="message-provider"></span>
+        </div>
+        <div class="message-body"></div>
+        <div class="citations"></div>
+      </article>
+    </template>
+
+    <script src="/static/app.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Local data
+artifacts/
+data/raw/
+data/processed/
+logs/
+*.db
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Node (not used for builds, but safe)
+node_modules/
