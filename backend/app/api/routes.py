@@ -84,7 +84,8 @@ def health(db: OrmSession = Depends(get_db)) -> HealthResponse:
     retrieval = RetrievalService()
     knowledge = retrieval.health(db) if database == "ready" else "missing"
 
-    providers = ProviderRegistry().describe()
+    registry = ProviderRegistry()
+    providers = registry.describe()
     selected = next((item for item in providers if item["selected"]), providers[0])
     agent_layer = "ready" if any(item["available"] for item in providers) else "degraded"
     status = "ok"
@@ -97,7 +98,13 @@ def health(db: OrmSession = Depends(get_db)) -> HealthResponse:
         knowledge_base=knowledge,
         agent_layer=agent_layer,
         selected_provider=selected["key"],
-        details={"provider_model": selected.get("model"), "checked_at": datetime.now(timezone.utc).isoformat()},
+        details={
+            "provider_model": selected.get("model"),
+            "provider_reason": selected.get("reason"),
+            "pi_agent_backend": registry.settings.pi_agent_backend,
+            "pi_agent_backend_fallback": registry.settings.pi_agent_enable_backend_fallback,
+            "checked_at": datetime.now(timezone.utc).isoformat(),
+        },
     )
 
 

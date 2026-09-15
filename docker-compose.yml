@@ -21,6 +21,11 @@ services:
       - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
 
   backend:
     build:
@@ -40,18 +45,27 @@ services:
       - ./skills:/app/skills
       - ./ingestion:/app/ingestion
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
 
   frontend:
     build:
       context: .
       dockerfile: frontend/Dockerfile
-    environment:
-      VITE_PROXY_TARGET: http://backend:8000
     ports:
       - "3000:3000"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
 
 volumes:
   postgres_data:

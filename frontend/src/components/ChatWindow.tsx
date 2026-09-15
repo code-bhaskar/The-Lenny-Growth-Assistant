@@ -50,6 +50,13 @@ function MessageCard({
       </div>
 
       <div className="message-body">{message.content}</div>
+      {(message.metadata.model || message.metadata.runtime_backend || message.metadata.artifact_word_count) ? (
+        <div className="message-meta-detail">
+          {message.metadata.model ? <span>Model: {message.metadata.model}</span> : null}
+          {message.metadata.runtime_backend ? <span>Backend: {message.metadata.runtime_backend}</span> : null}
+          {message.metadata.artifact_word_count ? <span>Artifact words: {message.metadata.artifact_word_count}</span> : null}
+        </div>
+      ) : null}
 
       {message.citations.length ? (
         <div className="citations">

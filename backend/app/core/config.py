@@ -40,15 +40,26 @@ class Settings(BaseSettings):
     ollama_timeout_seconds: int = 120
     ollama_auto_pull: bool = False
     ollama_context_window: int = 32768
+    ollama_health_timeout_seconds: int = 5
+    ollama_startup_retries: int = 8
+    ollama_startup_backoff_seconds: float = 2.0
 
     anthropic_api_key: str | None = None
     anthropic_model: str = "claude-3-5-sonnet-latest"
     anthropic_base_url: str = "https://api.anthropic.com"
 
     pi_agent_backend: Literal["node", "in_process"] = "node"
+    pi_agent_enable_backend_fallback: bool = True
     pi_agent_thinking_level: str = "medium"
     pi_agent_temperature: float = 0.2
     pi_agent_max_tokens: int = 4000
+    pi_agent_request_timeout_seconds: int = 180
+    pi_agent_retry_attempts: int = 2
+
+    ship30_target_words: int = 1250
+    ship30_min_words: int = 1100
+    ship30_max_words: int = 1400
+    ship30_repair_attempts: int = 1
 
     ingest_on_startup: bool = False
     transcript_repo_url: str = (

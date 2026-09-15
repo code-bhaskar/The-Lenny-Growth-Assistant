@@ -45,8 +45,15 @@ DATABASE_URL=postgresql+psycopg://postgres:postgres@db:5432/lenny_growth
 LLM_PROVIDER=ollama
 OLLAMA_BASE_URL=http://ollama:11434
 OLLAMA_MODEL=qwen2.5:3b
-ANTHROPIC_API_KEY=
+OLLAMA_AUTO_PULL=true
+OLLAMA_STARTUP_RETRIES=8
 PI_AGENT_BACKEND=node
+PI_AGENT_ENABLE_BACKEND_FALLBACK=true
+PI_AGENT_REQUEST_TIMEOUT_SECONDS=180
+SHIP30_TARGET_WORDS=1250
+SHIP30_MIN_WORDS=1100
+SHIP30_MAX_WORDS=1400
+ANTHROPIC_API_KEY=
 INGEST_ON_STARTUP=true
 FRONTEND_ORIGIN=http://localhost:3000
 ```
@@ -59,6 +66,15 @@ Example host setup:
 ollama serve
 ollama pull qwen2.5:3b
 ```
+
+### Runtime hardening
+The backend now hardens the Pi/Ollama path by:
+- checking Ollama availability and whether the configured model is actually pulled
+- auto-pulling the configured model when `OLLAMA_AUTO_PULL=true`
+- retrying model pull attempts with backoff
+- timing out Pi agent requests cleanly with structured errors
+- falling back from Pi `node` backend to `in_process` when configured
+- surfacing runtime backend and artifact word count in message metadata
 
 ## API surface
 ```text
@@ -80,6 +96,7 @@ GET    /api/artifacts/{artifact_id}
 - PostgreSQL persistence
 - source attribution
 - dedicated Ship 30 for 30 skill
+- automatic Ship 30 word-count enforcement into the configured target range
 - markdown and HTML/CSS artifact generation
 - in-app Artifact Viewer
 - sandboxed/sanitized HTML rendering
@@ -108,6 +125,21 @@ python ingestion/load_transcripts.py
 python ingestion/chunk_transcripts.py
 python ingestion/index_transcripts.py
 python ingestion/refresh_pipeline.py
+```
+
+## End-to-end validation
+### Local stack validation
+Runs backend + frontend locally, waits for readiness, and executes an API/UI smoke test.
+```bash
+./scripts/validate_local_stack.sh
+```
+
+### Docker stack validation
+Builds the compose stack, waits for readiness, and executes the same smoke test.
+By default it uses `PI_AGENT_BACKEND=in_process` for a fast deterministic validation path. Set `VALIDATE_WITH_OLLAMA=1` to validate the real Ollama runtime.
+```bash
+./scripts/validate_docker_stack.sh
+VALIDATE_WITH_OLLAMA=1 ./scripts/validate_docker_stack.sh
 ```
 
 ## Security

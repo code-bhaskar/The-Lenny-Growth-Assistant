@@ -8,7 +8,15 @@ def availability_ready(self, key: str):
     return True, None
 
 
-def stub_generate(self, *, conversation, retrieval_context, user_request, provider_name=None, force_artifact_type=None):
+def stub_generate(
+    self,
+    *,
+    conversation,
+    retrieval_context,
+    user_request,
+    provider_name=None,
+    force_artifact_type=None,
+):
     lowered = user_request.lower()
     if force_artifact_type == "html" or "html" in lowered:
         return (
@@ -22,6 +30,7 @@ def stub_generate(self, *, conversation, retrieval_context, user_request, provid
                 },
                 provider="ollama",
                 model="qwen2.5:3b",
+                runtime_backend="in_process",
             ),
             None,
         )
@@ -37,6 +46,7 @@ def stub_generate(self, *, conversation, retrieval_context, user_request, provid
                 },
                 provider="ollama",
                 model="qwen2.5:3b",
+                runtime_backend="in_process",
             ),
             None,
         )
@@ -47,6 +57,7 @@ def stub_generate(self, *, conversation, retrieval_context, user_request, provid
             artifact=None,
             provider="ollama",
             model="qwen2.5:3b",
+            runtime_backend="in_process",
         ),
         None,
     )
@@ -85,6 +96,7 @@ def test_post_message_and_list_messages(client, monkeypatch):
     payload = message_response.json()
     assert payload["role"] == "assistant"
     assert payload["metadata"]["route"] == "qa"
+    assert payload["metadata"]["runtime_backend"] == "in_process"
     assert len(payload["citations"]) >= 2
 
     messages_response = client.get(f"/api/sessions/{session_id}/messages")
@@ -107,6 +119,7 @@ def test_ship30_message_creates_markdown_artifact(client, monkeypatch):
     assert response.status_code == 200
     payload = response.json()
     assert payload["metadata"]["route"] == "ship30"
+    assert payload["metadata"]["artifact_word_count"] is not None
     assert payload["artifacts"][0]["type"] == "markdown"
     assert "<h1>Why clarity compounds</h1>" in payload["artifacts"][0]["sanitized_content"]
 

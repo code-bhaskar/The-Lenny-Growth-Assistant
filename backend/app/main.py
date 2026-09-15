@@ -4,11 +4,11 @@ import time
 import uuid
 from contextlib import asynccontextmanager
 
-import requests
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from app.agent.providers import ProviderRegistry
 from app.api.errors import AppError, app_error_handler, unhandled_error_handler
 from app.api.routes import router
 from app.core.config import get_settings
@@ -24,15 +24,12 @@ logger = get_logger(__name__)
 async def lifespan(_: FastAPI):
     configure_logging(settings.log_level)
     init_db()
-    if settings.ollama_auto_pull and settings.llm_provider == "ollama":
-        try:
-            requests.post(
-                f"{settings.ollama_base_url.rstrip('/')}/api/pull",
-                json={"name": settings.ollama_model, "stream": False},
-                timeout=600,
-            )
-        except Exception as exc:  # pragma: no cover
-            warning(logger, "ollama_auto_pull_failed", error=str(exc))
+    if settings.llm_provider == "ollama":
+        available, reason = ProviderRegistry().ensure_ollama_ready()
+        if available:
+            info(logger, "ollama_runtime_ready", model=settings.ollama_model, reason=reason)
+        else:  # pragma: no cover - startup environment dependent
+            warning(logger, "ollama_runtime_not_ready", model=settings.ollama_model, reason=reason)
     if settings.ingest_on_startup:
         db = get_session_factory()()
         try:

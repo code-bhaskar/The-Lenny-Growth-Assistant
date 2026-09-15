@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import re
 from typing import Any
 
 from sqlalchemy import select
@@ -169,6 +170,8 @@ class SessionService:
                 meta["model"] = agent_result.model
                 meta["retrieval_summary"] = retrieval_summary
                 meta["fallback_note"] = fallback_note
+                meta["runtime_backend"] = agent_result.runtime_backend
+                meta["artifact_word_count"] = self._word_count(payload.content)
                 meta.setdefault("artifact_ids", []).append(artifact.id)
                 message.metadata_json = meta
                 message.citations = citations
@@ -234,6 +237,8 @@ class SessionService:
                 "retrieval_summary": retrieval_summary,
                 "fallback_note": fallback_note,
                 "artifact_ids": [artifact.id for artifact in artifact_rows],
+                "artifact_word_count": self._word_count(artifact_rows[0].content) if artifact_rows else None,
+                "runtime_backend": agent_result.runtime_backend,
             },
             citations=citations,
         )
@@ -266,3 +271,6 @@ class SessionService:
             return
         base = seed.strip().splitlines()[0][:70]
         session.title = base if len(base) < 70 else f"{base[:67]}..."
+
+    def _word_count(self, text: str) -> int:
+        return len(re.findall(r"\b\w+\b", text))

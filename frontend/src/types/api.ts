@@ -31,6 +31,8 @@ export interface MessageMetadata {
   retrieval_summary?: Record<string, unknown>;
   fallback_note?: string | null;
   artifact_ids?: string[];
+  artifact_word_count?: number | null;
+  runtime_backend?: string | null;
 }
 
 export interface MessageView {

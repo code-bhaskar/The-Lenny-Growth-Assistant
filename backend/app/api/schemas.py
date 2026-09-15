@@ -37,6 +37,8 @@ class MessageMetadata(BaseModel):
     retrieval_summary: dict[str, Any] = Field(default_factory=dict)
     fallback_note: str | None = None
     artifact_ids: list[str] = Field(default_factory=list)
+    artifact_word_count: int | None = None
+    runtime_backend: str | None = None
 
 
 class MessageCreateRequest(BaseModel):
